@@ -2,9 +2,8 @@ package org.example;
 
 import java.util.List;
 
-public interface ControllerDao {
+public interface ControllerDao extends Loggable {
 
-    void login(String login, String password);
     List<Task> getTasks();
     void insertReading(double reading, long meterId);
 }

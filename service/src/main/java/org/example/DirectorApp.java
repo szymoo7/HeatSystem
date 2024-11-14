@@ -54,14 +54,14 @@ public class DirectorApp implements DirectorDao{
     @Override
     public void login(String login, String password) {
         if(isLoggedIn()) {
-            System.out.println("Already logged in.");
+            System.out.println("You are already logged in.");
             return;
         }
         if(!doesExist(login)) {
             System.out.println("User does not exist.");
             return;
         }
-        String sql1 = "SELECT account_id, password FROM Admins_Accounts WHERE login = ?";
+        String sql1 = "SELECT account_id, password FROM AdminsAccounts WHERE login = ?";
         try {
             connect();
             PreparedStatement pstmt = conn.prepareStatement(sql1);
@@ -70,15 +70,15 @@ public class DirectorApp implements DirectorDao{
             int id = rs.getInt("account_id");
             String validPassword = rs.getString("password");
 
-            if(!validPassword.equals(password)) {
-                System.out.println("Invalid login or password.");
-            } else {
-                String update = "UPDATE Admins_Accounts SET status = 'online' WHERE account_id = ?";
+            if(validPassword.equals(password)) {
+                String update = "UPDATE AdminsAccounts SET status = 'online' WHERE account_id = ?";
                 PreparedStatement pstmt2 = conn.prepareStatement(update);
                 pstmt2.setInt(1, id);
                 pstmt2.executeUpdate();
                 this.currentId = id;
                 System.out.println("Logged in as " + login + " successfully.");
+            } else {
+                System.out.println("Invalid login or password.");
             }
 
         } catch (SQLException e) {
@@ -161,12 +161,12 @@ public class DirectorApp implements DirectorDao{
             System.out.println("You must be logged in to set a price.");
             return;
         }
+        if(!doesExist(b)) {
+            System.out.println("Building does not exist in the database.");
+            return;
+        }
         try {
             connect();
-            if(!doesExist(b)) {
-                System.out.println("Building does not exist in the database.");
-                return;
-            }
             String sql = "UPDATE Buildings SET price_per_kwh = ? WHERE building_number = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setDouble(1, price);
@@ -267,7 +267,7 @@ public class DirectorApp implements DirectorDao{
     private boolean doesExist(String login) {
         try {
             connect();
-            String sql = "SELECT account_id FROM Admins_Accounts WHERE login = ?";
+            String sql = "SELECT account_id FROM AdminsAccounts WHERE login = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, login);
             ResultSet rs = pstmt.executeQuery();

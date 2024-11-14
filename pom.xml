@@ -11,6 +11,7 @@
     <modules>
         <module>service</module>
         <module>mainApp</module>
+        <module>mainAppUI</module>
     </modules>
 
     <properties>

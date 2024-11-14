@@ -2,9 +2,8 @@ package org.example;
 
 import java.util.List;
 
-public interface TenantDao {
+public interface TenantDao extends Loggable {
 
-        void login(String login, String password);
         List<Bill> getBills();
         void payBill();
 }
