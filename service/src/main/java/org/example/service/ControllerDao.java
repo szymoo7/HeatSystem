@@ -1,9 +1,9 @@
-package org.example;
+package org.example.service;
 
 import java.util.List;
 
 public interface ControllerDao extends Loggable {
 
-    List<Task> getTasks();
+    List<TaskInfo> getTasks();
     void insertReading(double reading, long meterId);
 }

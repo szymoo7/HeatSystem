@@ -1,9 +1,9 @@
-package org.example;
+package org.example.service;
 
 import java.sql.*;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class ControllerApp implements ControllerDao{
@@ -42,7 +42,7 @@ public class ControllerApp implements ControllerDao{
                             "    task_description TEXT," +
                             "    task_status TEXT," +
                             "    due_date DATE," +
-                            "    assigned_date DATETIME DEFAULT CURRENT_TIMESTAMP," +
+                            "    assignedDate DATETIME DEFAULT CURRENT_TIMESTAMP," +
                             "    FOREIGN KEY (executor_id) REFERENCES ControllersAccounts(Account_Id)" +
                             ");"
             };
@@ -58,6 +58,10 @@ public class ControllerApp implements ControllerDao{
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public ControllerApp(int currentId) {
+        this.currentId = currentId;
     }
 
     private void connect() throws SQLException {
@@ -123,17 +127,13 @@ public class ControllerApp implements ControllerDao{
     }
 
     @Override
-    public List<Task> getTasks() {
-        return null;
-    }
-
-    public Map<Task, String> getTaskMap() {
+    public List<TaskInfo> getTasks() {
         if(currentId ==  0) {
             System.out.println("You are not logged in.");
             return null;
         }
-        String sql = "SELECT task, task_description FROM ControllersTasks WHERE executor_id = ?";
-        Map<Task, String> results = new HashMap<>();
+        List<TaskInfo> result = new ArrayList<>();
+        String sql = "SELECT * FROM ControllersTasks WHERE executor_id = ?";
         try {
             connect();
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -141,13 +141,22 @@ public class ControllerApp implements ControllerDao{
             ResultSet rs = pstmt.executeQuery();
             while(rs.next()) {
                 String task = rs.getString("task");
-                String description = rs.getString("task_description");
-                if(task == null) {
-                    continue;
+                if(task != null) {
+                    String sql1 = "SELECT name, surname FROM Controllers WHERE controller_id = ?";
+                    PreparedStatement pstmt1 = conn.prepareStatement(sql1);
+                    pstmt1.setInt(1, this.currentId);
+                    ResultSet rs1 = pstmt1.executeQuery();
+                    String name = rs1.getString("name");
+                    String surname = rs1.getString("surname");
+                    String executor = name + " " + surname;
+                    String description = rs.getString("task_description");
+                    String status = rs.getString("task_status");
+                    String dueDate = rs.getString("due_date");
+                    String assignedDate = rs.getString("assigned_date");
+                    result.add(new TaskInfo(executor, task, description, status, dueDate, assignedDate));
                 }
-                Task todo = Task.valueOf(task.toUpperCase());
-                results.put(todo, description);
             }
+            result.sort(Comparator.comparing(TaskInfo::getDueDate));
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -157,7 +166,8 @@ public class ControllerApp implements ControllerDao{
                 System.out.println(e.getMessage());
             }
         }
-        return results.isEmpty() ? null : results;
+        return result.isEmpty() ? null : result;
+
     }
 
     @Override
@@ -168,10 +178,6 @@ public class ControllerApp implements ControllerDao{
         }
 
         String sql = "INSERT INTO MetersReadings (meter_id, reading, reading_date) VALUES (?, ?, CURRENT_TIMESTAMP)";
-
-
-
-
     }
 
     private boolean doesExits(String login) throws SQLException {

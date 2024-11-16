@@ -1,4 +1,4 @@
-package org.example;
+package org.example.service;
 
 import java.sql.*;
 import java.util.List;
@@ -33,7 +33,7 @@ public class TenantApp implements TenantDao{
                             "    task_description TEXT," +
                             "    task_status TEXT," +
                             "    due_date DATE," +
-                            "    assigned_date DATETIME DEFAULT CURRENT_TIMESTAMP," +
+                            "    assignedDate DATETIME DEFAULT CURRENT_TIMESTAMP," +
                             "    FOREIGN KEY (executor_id) REFERENCES ControllersAccounts(Account_Id)" +
                             ");"
             };

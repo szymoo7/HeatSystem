@@ -1,7 +1,9 @@
-package org.example;
+package org.example.service;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class DirectorApp implements DirectorDao{
@@ -48,6 +50,13 @@ public class DirectorApp implements DirectorDao{
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+
+    public DirectorApp() {
+    }
+    public DirectorApp(int currentId) {
+        this.currentId = currentId;
     }
 
 
@@ -184,7 +193,7 @@ public class DirectorApp implements DirectorDao{
     }
 
     @Override
-    public void setBill(Bill b, Apartment a) {
+    public void setBill(Bill b) {
         if(!isLoggedIn()) {
             System.out.println("You must be logged in to set a bill.");
             return;
@@ -344,6 +353,70 @@ public class DirectorApp implements DirectorDao{
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return false;
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public Bill calculateBill(Apartment a, double pricePerKwh, LocalDate date, BillStatus status) {
+        double area = a.getArea();
+        int buildingNumber = a.getBuildingNumber();
+        String sql = "SELECT m.measure AS meter_measure FROM Meters m WHERE m.apartment_number = ? AND m.building_number = ?" +
+                "UNION SELECT mm.measure AS main_meter_measure FROM Main_Meters mm WHERE mm.building_number = ?"
+                + "UNION SELECT SUM(area) FROM Apartments AS total_area WHERE building_number = ?";
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, a.getApartmentNumber());
+            pstmt.setInt(2, buildingNumber);
+            pstmt.setInt(3, buildingNumber);
+            ResultSet rs = pstmt.executeQuery();
+            double apartmentUsage = rs.getDouble("meter_measure");
+            double buildingUsage = rs.getDouble("main_meter_measure");
+            double totalArea = rs.getDouble("total_area");
+            double weight = area / totalArea;
+            double toPay = apartmentUsage * pricePerKwh + (weight * buildingUsage * pricePerKwh);
+
+            return new Bill(a.getTenantId(), apartmentUsage,toPay, pricePerKwh,
+                    status, date, buildingNumber, a.getApartmentNumber());
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public List<Apartment> getApartments() {
+        String sql = "SELECT a.building_number, a.apartment_number, a.tenant_id, a.area, t.name, t.surname " +
+             "FROM Apartments a JOIN Tenants t ON a.tenant_id = t.tenant_id";
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+            List<Apartment> result = new ArrayList<>();
+            while(rs.next()) {
+                int buildingNumber = rs.getInt("building_number");
+                int apartmentNumber = rs.getInt("apartment_number");
+                int tenantId = rs.getInt("tenant_id");
+                double area = rs.getDouble("area");
+                String tenant = rs.getString("name") + " " + rs.getString("surname");
+                result.add(new Apartment(buildingNumber, apartmentNumber, tenantId, area, tenant));
+            }
+            return result;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
         } finally {
             try {
                 disconnect();

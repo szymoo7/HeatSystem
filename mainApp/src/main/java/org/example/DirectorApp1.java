@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.service.*;
+
 import java.time.LocalDate;
 
 public class DirectorApp1 {
@@ -11,7 +13,7 @@ public class DirectorApp1 {
         Bill testBill = new Bill(1, 7, 1020, 123456, 18340, BillStatus.TO_PAY, dueDate, 3, 2);
         admin1.registerTenant(testTenant);
         Apartment testApartment = new Apartment(15, 607, 1);
-        admin1.setBill(testBill, testApartment);
+        admin1.setBill(testBill);
         Controller testController = new Controller( "Jan", "Kowalski", "jan2", "jan123");
         admin1.registerController(testController);
         Task ttest = Task.CHECK_TEMPERATURE;

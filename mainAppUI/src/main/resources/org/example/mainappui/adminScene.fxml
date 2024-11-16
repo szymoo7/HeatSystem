@@ -1,11 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.AdminController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #171514;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.AdminController">
    <children>
-      <Label layoutX="266.0" layoutY="191.0" prefHeight="18.0" prefWidth="68.0" text="adminScene" />
+      <Label fx:id="heatSystemText" layoutX="79.0" layoutY="14.0" prefHeight="46.0" prefWidth="271.0" text="Heat System" textFill="#9e5311">
+         <font>
+            <Font size="48.0" />
+         </font>
+         <effect>
+            <Glow level="1.0" />
+         </effect></Label>
+      <TableView fx:id="apartments" layoutX="79.0" layoutY="84.0" prefHeight="300.0" prefWidth="650.0" style="-fx-background-color: #4d5152;">
+         <columns>
+            <TableColumn fx:id="buildingNumber" prefWidth="111.0" text="Building Number" />
+            <TableColumn fx:id="executor" prefWidth="145.0" text="Apartement Number" />
+            <TableColumn fx:id="taskDescription" prefWidth="233.0" text="Tenant" />
+            <TableColumn fx:id="taskStatus" minWidth="0.0" prefWidth="160.0" text="Area [m^2]" />
+         </columns>
+      </TableView>
+      <TableView fx:id="apartments1" layoutX="79.0" layoutY="423.0" prefHeight="300.0" prefWidth="650.0" style="-fx-background-color: #4d5152;">
+         <columns>
+            <TableColumn fx:id="executor1" prefWidth="127.5999984741211" text="Executor" />
+            <TableColumn fx:id="task1" prefWidth="70.0" text="Task" />
+            <TableColumn fx:id="taskDescription1" prefWidth="290.8000183105469" text="Task Description" />
+            <TableColumn fx:id="taskStatus1" minWidth="0.0" prefWidth="87.60003662109375" text="Status" />
+            <TableColumn fx:id="dueDate1" prefWidth="107.2000732421875" text="Due Date" />
+            <TableColumn fx:id="assignedDate1" prefWidth="123.0" text="Assigned Date" />
+         </columns>
+      </TableView>
    </children>
 </AnchorPane>

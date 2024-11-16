@@ -1,5 +1,8 @@
 package org.example;
 
+import org.example.service.Bill;
+import org.example.service.TenantApp;
+
 import java.util.List;
 
 public class TenantApp1 {

@@ -1,4 +1,4 @@
-package org.example;
+package org.example.service;
 
 public record Controller(int id, String name, String surname, String login, String password) {
     public Controller(String name, String surname, String login, String password) {

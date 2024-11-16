@@ -1,4 +1,4 @@
-package org.example;
+package org.example.service;
 
 public record Tenant(int id, String name, String surname, String login, String password) {
 
