@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.effect.Glow?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #171514;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.AdminController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #171514;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.AdminController">
    <children>
       <Label fx:id="heatSystemText" layoutX="79.0" layoutY="14.0" prefHeight="46.0" prefWidth="271.0" text="Heat System" textFill="#9e5311">
          <font>
@@ -19,9 +17,9 @@
       <TableView fx:id="apartments" layoutX="79.0" layoutY="84.0" prefHeight="300.0" prefWidth="650.0" style="-fx-background-color: #4d5152;">
          <columns>
             <TableColumn fx:id="buildingNumber" prefWidth="111.0" text="Building Number" />
-            <TableColumn fx:id="executor" prefWidth="145.0" text="Apartement Number" />
-            <TableColumn fx:id="taskDescription" prefWidth="233.0" text="Tenant" />
-            <TableColumn fx:id="taskStatus" minWidth="0.0" prefWidth="160.0" text="Area [m^2]" />
+            <TableColumn fx:id="apartmentNumber" prefWidth="145.0" text="Apartement Number" />
+            <TableColumn fx:id="tenant" prefWidth="233.0" text="Tenant" />
+            <TableColumn fx:id="area" minWidth="0.0" prefWidth="160.0" text="Area [m^2]" />
          </columns>
       </TableView>
       <TableView fx:id="apartments1" layoutX="79.0" layoutY="423.0" prefHeight="300.0" prefWidth="650.0" style="-fx-background-color: #4d5152;">
@@ -34,5 +32,17 @@
             <TableColumn fx:id="assignedDate1" prefWidth="123.0" text="Assigned Date" />
          </columns>
       </TableView>
+      <Button fx:id="updateApartments" layoutX="759.0" layoutY="84.0" mnemonicParsing="false" onAction="#onClickUpdateApartments" text="Update Apartments">
+         <effect>
+            <Lighting>
+               <bumpInput>
+                  <Shadow />
+               </bumpInput>
+               <light>
+                  <Light.Distant />
+               </light>
+            </Lighting>
+         </effect>
+      </Button>
    </children>
 </AnchorPane>

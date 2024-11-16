@@ -36,6 +36,6 @@ public class Apartment {
     }
 
     public String getTenant() {
-        return tenantId == 0 ? "Not occupied" : "Occupied";
+        return tenant;
     }
 }
