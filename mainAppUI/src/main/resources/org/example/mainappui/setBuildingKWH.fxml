@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #171514;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.AdminController">
+   <children>
+      <Label fx:id="heatSystemText" layoutX="7.0" layoutY="14.0" prefHeight="54.0" prefWidth="201.0" text="Heat System" textAlignment="CENTER" textFill="#9e5311">
+         <font>
+            <Font size="36.0" />
+         </font>
+         <effect>
+            <Glow level="1.0" />
+         </effect>
+      </Label>
+      <Button fx:id="setBuildingPriceButton" layoutX="88.0" layoutY="140.0" onAction="#onSetBuildingPriceButton" mnemonicParsing="false" text="Set" />
+      <TextField fx:id="buildingInput2" layoutX="30.0" layoutY="69.0" promptText="Building Number" />
+      <TextField fx:id="priceBuildingKWH" layoutX="30.0" layoutY="106.0"  promptText="Price per kWh" />
+   </children>
+</AnchorPane>

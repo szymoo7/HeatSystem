@@ -151,6 +151,7 @@ public class DirectorApp implements DirectorDao{
             pstmt.setDouble(1, price);
             pstmt.setInt(2, b.buildingNumber());
             pstmt.executeUpdate();
+            System.out.println("Price set successfully.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -222,6 +223,14 @@ public class DirectorApp implements DirectorDao{
             pstmt3.setString(2, t.surname());
             pstmt3.setInt(3, id);
             pstmt3.executeUpdate();
+            String sql4 = "INSERT INTO Apartments(building_number, apartment_number, tenant_id, area) VALUES(?, ?, ?, ?)";
+            PreparedStatement pstmt4 = conn.prepareStatement(sql4);
+            pstmt4.setInt(1, t.buildingNumber());
+            pstmt4.setInt(2, t.apartmentNumber());
+            pstmt4.setInt(3, id);
+            pstmt4.setDouble(4, t.area());
+            pstmt4.executeUpdate();
+            System.out.println("Tenant registered successfully.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
