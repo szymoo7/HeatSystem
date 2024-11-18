@@ -136,4 +136,25 @@ public class TenantApp implements TenantDao{
         int id = rs.getInt("account_id");
         return id != 0;
     }
+
+    @Override
+    public void logout() {
+        try {
+            connect();
+            String update = "UPDATE TenantsAccounts SET status = 'offline' WHERE account_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(update);
+            pstmt.setInt(1, currentId);
+            pstmt.executeUpdate();
+            currentId = 0;
+            System.out.println("Logged out successfully.");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 }

@@ -11,43 +11,13 @@ public class DirectorApp implements DirectorDao{
     private Logger logger = Logger.getLogger(DirectorApp.class.getName());
     private Connection conn  = null;
     private int currentId = 0;
+
+    //TODO: Usunąć bo blokuje etap logowania -> [SQLITE_BUSY] The database file is locked (database is locked)
+    // i wrzucić do klasy loginController
     static {
         try {
-            String url = "jdbc:sqlite:HeatSystemDB";
-            var temp = DriverManager.getConnection(url);
-
-            String[] tableCreationQueries = {
-                    "CREATE TABLE IF NOT EXISTS Administrators (" +
-                            "    admin_id INTEGER PRIMARY KEY," +
-                            "    name TEXT," +
-                            "    surname TEXT" +
-                            ");",
-                    "CREATE TABLE IF NOT EXISTS Admins_Accounts (" +
-                            "    account_id INTEGER PRIMARY KEY," +
-                            "    login TEXT," +
-                            "    password TEXT," +
-                            "    status TEXT" +
-                            ");",
-                    "CREATE TABLE IF NOT EXISTS ControllersTasks (" +
-                            "    executor_id INTEGER," +
-                            "    task TEXT," +
-                            "    task_description TEXT," +
-                            "    task_status TEXT," +
-                            "    due_date DATE," +
-                            "    assigned_date DATETIME DEFAULT CURRENT_TIMESTAMP," +
-                            "    FOREIGN KEY (executor_id) REFERENCES ControllersAccounts(Account_Id)" +
-                            ");"
-            };
-
-            try (Statement stmt = temp.createStatement()) {
-                for (String query : tableCreationQueries) {
-                    stmt.execute(query);
-                }
-            }
-
-            temp.close();
-
-        } catch (SQLException e) {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -257,6 +227,47 @@ public class DirectorApp implements DirectorDao{
         }
     }
 
+    @Override
+    public List<TaskInfo> getTasks() {
+        if(currentId ==  0) {
+            System.out.println("You are not logged in.");
+            return null;
+        }
+        List<TaskInfo> result = new ArrayList<>();
+        String sql = "SELECT * FROM ControllersTasks";
+        String sql1 = "SELECT name, surname FROM Controllers WHERE controller_id = ?";
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+            while(rs.next()) {
+                String executor = rs.getString("executor_id");
+                PreparedStatement pstmt1 = conn.prepareStatement(sql1);
+                pstmt1.setString(1, executor);
+                ResultSet rs1 = pstmt1.executeQuery();
+                String executorName = rs1.getString("name") + " " + rs1.getString("surname");
+                String task = rs.getString("task");
+                String description = rs.getString("task_description");
+                String status = rs.getString("task_status");
+                String dueDate = rs.getString("due_date");
+                int buildingNumber = rs.getInt("building_number");
+                int apartmentNumber = rs.getInt("apartment_number");
+                String assignedDate = rs.getString("assigned_date");
+                result.add(new TaskInfo(executorName,task, description, status, dueDate, assignedDate, buildingNumber, apartmentNumber));
+            }
+            return result;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     private void connect() throws SQLException {
         if (conn != null) {
             return;
@@ -417,6 +428,27 @@ public class DirectorApp implements DirectorDao{
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return null;
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public void logout() {
+        try {
+            connect();
+            String sql = "UPDATE AdminsAccounts SET status = 'offline' WHERE account_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, currentId);
+            pstmt.executeUpdate();
+            currentId = 0;
+            System.out.println("Logged out successfully.");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         } finally {
             try {
                 disconnect();

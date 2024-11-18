@@ -18,46 +18,6 @@ public class ControllerApp implements ControllerDao{
         } catch (ClassNotFoundException e) {
             System.out.println(e.getMessage());
         }
-
-        try {
-            String url = "jdbc:sqlite:HeatSystemDB";
-            var temp = DriverManager.getConnection(url);
-
-            String[] tableCreationQueries = {
-                    "CREATE TABLE IF NOT EXISTS ControllerAccounts (" +
-                            "    Account_Id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                            "    Login TEXT UNIQUE," +
-                            "    Password TEXT," +
-                            "    Status TEXT" +
-                            ");",
-                    "CREATE TABLE IF NOT EXISTS Controllers (" +
-                            "    Controller_Id INTEGER," +
-                            "    Name TEXT," +
-                            "    Surname TEXT," +
-                            "    FOREIGN KEY (Controller_Id) REFERENCES ControllerAccounts(Account_Id)" +
-                            ");",
-                    "CREATE TABLE IF NOT EXISTS ControllersTasks (" +
-                            "    executor_id INTEGER," +
-                            "    task TEXT," +
-                            "    task_description TEXT," +
-                            "    task_status TEXT," +
-                            "    due_date DATE," +
-                            "    assignedDate DATETIME DEFAULT CURRENT_TIMESTAMP," +
-                            "    FOREIGN KEY (executor_id) REFERENCES ControllersAccounts(Account_Id)" +
-                            ");"
-            };
-
-            try (Statement stmt = temp.createStatement()) {
-                for (String query : tableCreationQueries) {
-                    stmt.execute(query);
-                }
-            }
-
-            temp.close();
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     public ControllerApp(int currentId) {
@@ -81,20 +41,12 @@ public class ControllerApp implements ControllerDao{
         conn = null;
     }
 
+    public int getCurrentId() {
+        return currentId;
+    }
+
     @Override
     public void login(String login, String password) {
-        if(this.currentId != 0) {
-            System.out.println("You are already logged in.");
-            return;
-        }
-        try {
-            if(!doesExits(login)) {
-                System.out.println("User does not exist.");
-                return;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
         String sql1 = "SELECT account_id, password FROM ControllersAccounts WHERE login = ?";
         try {
             connect();
@@ -153,7 +105,9 @@ public class ControllerApp implements ControllerDao{
                     String status = rs.getString("task_status");
                     String dueDate = rs.getString("due_date");
                     String assignedDate = rs.getString("assigned_date");
-                    result.add(new TaskInfo(executor, task, description, status, dueDate, assignedDate));
+                    int buildingNumber = rs.getInt("building_number");
+                    int apartmentNumber = rs.getInt("apartment_number");
+                    result.add(new TaskInfo(executor, task, description, status, dueDate, assignedDate, buildingNumber, apartmentNumber));
                 }
             }
             result.sort(Comparator.comparing(TaskInfo::getDueDate));
@@ -171,13 +125,71 @@ public class ControllerApp implements ControllerDao{
     }
 
     @Override
-    public void insertReading(double reading, long meterId) {
+    public void insertReading(int buildingNumber, int apartmentNumber,
+                              double mainMeterReading, double apartmentMeterReading, int controllerId) {
         if(currentId == 0) {
             System.out.println("You are not logged in.");
             return;
         }
+        String sql = "SELECT apartment_id FROM Apartments WHERE building_number = ? AND apartment_number = ?";
+        String sql1 = "INSERT INTO Measures (apartment_id, controller_id, measure) VALUES (?, ?, ?)";
+        String sql2 = "UPDATE ControllersTasks SET task_status = 'DONE' WHERE executor_id = ? AND task_status = 'TODO' AND building_number = ? AND apartment_number = ?";
+        String sql3 = "DELETE FROM Meters WHERE building_number = ? AND apartment_number = ?";
+        String sql4 = "SELECT main_meter_id FROM Buildings WHERE building_number = ?";
+        String sql5 = "DELETE FROM Main_Meters WHERE main_meter_id = ?";
+        String sql6 = "INSERT INTO Meters (measure, building_number, apartment_number) VALUES (?, ?, ?)";
+        String sql7 = "INSERT INTO Main_Meters (measure, building_number, main_meter_id) VALUES (?, ?, ?)";
 
-        String sql = "INSERT INTO MetersReadings (meter_id, reading, reading_date) VALUES (?, ?, CURRENT_TIMESTAMP)";
+
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, buildingNumber);
+            pstmt.setInt(2, apartmentNumber);
+            ResultSet rs = pstmt.executeQuery();
+            int apartmentId = rs.getInt("apartment_id");
+            PreparedStatement pstmt1 = conn.prepareStatement(sql1);
+            pstmt1.setInt(1, apartmentId);
+            pstmt1.setInt(2, controllerId);
+            pstmt1.setDouble(3, apartmentMeterReading);
+            pstmt1.executeUpdate();
+            PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+            pstmt2.setInt(1, controllerId);
+            pstmt2.setInt(2, buildingNumber);
+            pstmt2.setInt(3, apartmentNumber);
+            pstmt2.executeUpdate();
+            PreparedStatement pstmt3 = conn.prepareStatement(sql3);
+            pstmt3.setInt(1, buildingNumber);
+            pstmt3.setInt(2, apartmentNumber);
+            pstmt3.executeUpdate();
+            PreparedStatement pstmt4 = conn.prepareStatement(sql4);
+            pstmt4.setInt(1, buildingNumber);
+            ResultSet rs1 = pstmt4.executeQuery();
+            int mainMeterId = rs1.getInt("main_meter_id");
+            PreparedStatement pstmt5 = conn.prepareStatement(sql5);
+            pstmt5.setInt(1, mainMeterId);
+            pstmt5.executeUpdate();
+            PreparedStatement pstmt6 = conn.prepareStatement(sql6);
+            pstmt6.setDouble(1, apartmentMeterReading);
+            pstmt6.setInt(2, buildingNumber);
+            pstmt6.setInt(3, apartmentNumber);
+            pstmt6.executeUpdate();
+            PreparedStatement pstmt7 = conn.prepareStatement(sql7);
+            pstmt7.setDouble(1, mainMeterReading);
+            pstmt7.setInt(2, buildingNumber);
+            pstmt7.setInt(3, mainMeterId);
+            pstmt7.executeUpdate();
+            System.out.println("Reading inserted successfully.");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
     }
 
     private boolean doesExits(String login) throws SQLException {
@@ -188,5 +200,39 @@ public class ControllerApp implements ControllerDao{
         ResultSet rs = pstmt.executeQuery();
         int id = rs.getInt("account_id");
         return id != 0;
+    }
+
+    private boolean isLogged(String login) {
+        String sql = "SELECT status FROM ControllersAccounts WHERE login = ?";
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, login);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.getString("status").equals("online");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public void logout() {
+        try {
+            connect();
+            String update = "UPDATE ControllersAccounts SET status = 'offline' WHERE account_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(update);
+            pstmt.setInt(1, this.currentId);
+            pstmt.executeUpdate();
+            this.currentId = 0;
+            System.out.println("Logged out successfully.");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 }

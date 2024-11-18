@@ -12,4 +12,5 @@ public interface DirectorDao extends Loggable {
     void setBill(Bill b);
     Bill calculateBill(Apartment a, double pricePerKwh, LocalDate date, BillStatus status);
     List<Apartment> getApartments();
+    List<TaskInfo> getTasks();
 }

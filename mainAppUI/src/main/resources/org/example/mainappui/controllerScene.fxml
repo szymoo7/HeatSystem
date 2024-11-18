@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #171514;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.ControllerController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #171514;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.ControllerController">
    <children>
       <Label fx:id="heatSystemText" layoutX="79.0" layoutY="14.0" prefHeight="46.0" prefWidth="271.0" text="Heat System" textFill="#9e5311">
          <font>
@@ -22,11 +27,13 @@
            <TableColumn fx:id="taskStatus" minWidth="0.0" prefWidth="87.60003662109375" text="Status" />
            <TableColumn fx:id="dueDate" prefWidth="107.2000732421875" text="Due Date" />
            <TableColumn fx:id="assignedDate" prefWidth="123.0" text="Assigned Date" />
+            <TableColumn fx:id="buildingNumber" prefWidth="123.0" text="Building Nr." />
+            <TableColumn fx:id="apartmentNumber" prefWidth="123.0" text="Apartment Nr." />
         </columns>
       </TableView>
       <Button fx:id="loadTasksButton" layoutX="80.0" layoutY="603.0" mnemonicParsing="false" onAction="#onLoadTasksButtonClick" prefHeight="29.0" prefWidth="122.0" text="Load Tasks" />
-      <Separator layoutX="944.0" layoutY="140.0" prefWidth="200.0" />
-      <Label layoutX="969.0" layoutY="115.0" prefHeight="26.0" prefWidth="200.0" text="Reading information" textAlignment="CENTER" textFill="#9e5311">
+      <Separator layoutX="925.0" layoutY="140.0" prefWidth="200.0" />
+      <Label layoutX="950.0" layoutY="115.0" prefHeight="26.0" prefWidth="200.0" text="Reading information" textAlignment="CENTER" textFill="#9e5311">
          <effect>
             <Glow level="1.0" />
          </effect>
@@ -34,6 +41,11 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <TextField fx:id="readingInfo" layoutX="969.0" layoutY="181.0" />
+      <TextField fx:id="readBuilding" layoutX="937.0" layoutY="150.0" prefWidth="175.0" promptText="Building number" />
+      <TextField fx:id="readApart" layoutX="937.0" layoutY="180.0" prefWidth="175.0" promptText="Apartment number" />
+      <TextField fx:id="readMmm" layoutX="937.0" layoutY="210.0" prefWidth="175.0" promptText="Main meter measure" />
+      <TextField fx:id="readAmm" layoutX="937.0" layoutY="240.0" prefWidth="175.0" promptText="Apartment meter measure" />
+      <Button fx:id="insertReadingButton" layoutX="938.0" layoutY="277.0" mnemonicParsing="false" onAction="#insertReading" prefHeight="25.0" prefWidth="175.0" text="Insert reading" />
+      <Button fx:id="logOutButton" layoutX="937.0" layoutY="618.0" mnemonicParsing="false" onAction="#onLogOutButtonClick" prefHeight="51.0" prefWidth="157.0" text="Log out" />
    </children>
 </AnchorPane>

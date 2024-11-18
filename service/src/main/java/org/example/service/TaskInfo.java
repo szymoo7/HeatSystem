@@ -7,14 +7,18 @@ public class TaskInfo {
     private final String taskStatus;
     private final String dueDate;
     private final String assignedDate;
+    private final int buildingNumber;
+    private final int apartmentNumber;
 
-    public TaskInfo(String executor, String task, String taskDescription, String taskStatus, String dueDate, String assignedDate) {
+    public TaskInfo(String executor, String task, String taskDescription, String taskStatus, String dueDate, String assignedDate, int buildingNumber, int apartmentNumber) {
         this.executor = executor;
         this.task = task;
         this.taskDescription = taskDescription;
         this.taskStatus = taskStatus;
         this.dueDate = dueDate;
         this.assignedDate = assignedDate;
+        this.buildingNumber = buildingNumber;
+        this.apartmentNumber = apartmentNumber;
     }
 
     public String getExecutor() {
@@ -39,5 +43,13 @@ public class TaskInfo {
 
     public String getAssignedDate() {
         return assignedDate;
+    }
+
+    public int getBuildingNumber() {
+        return buildingNumber;
+    }
+
+    public int getApartmentNumber() {
+        return apartmentNumber;
     }
 }
