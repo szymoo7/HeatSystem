@@ -1,11 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.TenantController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #171514;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.TenantController">
    <children>
-      <Label layoutX="267.0" layoutY="191.0" text="tenantScene" />
+      <Label fx:id="heatSystemText" layoutX="79.0" layoutY="14.0" prefHeight="46.0" prefWidth="271.0" text="Heat System" textFill="#9e5311">
+         <font>
+            <Font size="48.0" />
+         </font>
+         <effect>
+            <Glow level="1.0" />
+         </effect>
+      </Label>
+      <TableView fx:id="bills" layoutX="79.0" layoutY="84.0" prefHeight="650.0" prefWidth="650.0">
+        <columns>
+            <TableColumn fx:id="billNumberColumn" prefWidth="75.0" text="Bill nr." />
+          <TableColumn fx:id="toPayColumn" prefWidth="60.0" text="To pay" />
+            <TableColumn fx:id="statusColumn" prefWidth="64.0" text="Status" />
+            <TableColumn fx:id="usedKWHColumn" prefWidth="73.0" text="Used kWh" />
+            <TableColumn fx:id="pricePerKWHColumn" prefWidth="102.0" text="Price per kWh" />
+            <TableColumn fx:id="dueDateColumn" prefWidth="66.0" text="Due to" />
+            <TableColumn fx:id="buildingNumberColumn" minWidth="0.0" prefWidth="110.0" text="Building nr." />
+            <TableColumn fx:id="apartmentNumberColumn" prefWidth="99.0" text="Apartment nr." />
+        </columns>
+      </TableView>
+      <Button fx:id="updateBillsButton" layoutX="790.0" layoutY="84.0" mnemonicParsing="false" onAction="#onClickUpdateBills" text="Update bills" />
+      <Button fx:id="payBillButton" layoutX="1022.0" layoutY="171.0" mnemonicParsing="false" onAction="#onClickPayBill" text="Pay bill" />
+      <Label layoutX="1022.0" layoutY="96.0" prefHeight="26.0" prefWidth="54.0" text="Pay bill" textAlignment="CENTER" textFill="#9e5311">
+         <effect>
+            <Glow level="1.0" />
+         </effect>
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+      <Separator layoutX="949.0" layoutY="122.0" prefWidth="200.0" />
+      <TextField fx:id="insertBillId" layoutX="975.0" layoutY="136.0" promptText="Payment nr." />
    </children>
 </AnchorPane>

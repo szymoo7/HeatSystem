@@ -1,7 +1,8 @@
 package org.example.service;
 
 import java.sql.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -12,8 +13,6 @@ public class DirectorApp implements DirectorDao{
     private Connection conn  = null;
     private int currentId = 0;
 
-    //TODO: Usunąć bo blokuje etap logowania -> [SQLITE_BUSY] The database file is locked (database is locked)
-    // i wrzucić do klasy loginController
     static {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -32,10 +31,6 @@ public class DirectorApp implements DirectorDao{
 
     @Override
     public void login(String login, String password) {
-        if(isLoggedIn()) {
-            System.out.println("You are already logged in.");
-            return;
-        }
         if(!doesExist(login)) {
             System.out.println("User does not exist.");
             return;
@@ -106,7 +101,7 @@ public class DirectorApp implements DirectorDao{
     }
 
     @Override
-    public void delegateTask(Task t, Controller c, Tenant tnt, String description, LocalDate dueDate) {
+    public void delegateTask(String task, Controller c, int buildingNumber, int apartmentNumber, String description, String dueDate) {
         if(!isLoggedIn()) {
             System.out.println("You must be logged in to delegate a task.");
             return;
@@ -114,13 +109,17 @@ public class DirectorApp implements DirectorDao{
         try {
             connect();
             String sql = "INSERT INTO ControllersTasks(executor_id, task, task_description," +
-                    " task_status, due_date) VALUES(?, ?, ?, ?, ?)";
+                    " task_status, due_date, assigned_date, building_number, apartment_number)"
+            + " VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, c.id());
-            pstmt.setString(2, t.toString());
+            pstmt.setString(2, task);
             pstmt.setString(3, description);
             pstmt.setString(4, "TODO");
-            pstmt.setString(5, dueDate.toString());
+            pstmt.setString(5, dueDate);
+            pstmt.setString(6, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            pstmt.setInt(7, buildingNumber);
+            pstmt.setInt(8, apartmentNumber);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -174,15 +173,16 @@ public class DirectorApp implements DirectorDao{
             String sql = "INSERT INTO Bills(tenant_id, amount, price, status," +
                     " price_per_kwh, date, building_number, apartment_number) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, b.tenantId());
-            pstmt.setDouble(2, b.amount());
-            pstmt.setDouble(3, b.price());
-            pstmt.setString(4, b.status().toString());
-            pstmt.setDouble(5, b.pricePerKwh());
-            pstmt.setString(6, b.date().toString());
-            pstmt.setInt(7, b.buildingNumber());
-            pstmt.setInt(8, b.apartmentNumber());
+            pstmt.setInt(1, b.getTenantId());
+            pstmt.setDouble(2, b.getAmount());
+            pstmt.setDouble(3, b.getPrice());
+            pstmt.setString(4, b.getStatus());
+            pstmt.setDouble(5, b.getPricePerKwh());
+            pstmt.setString(6, b.getDate());
+            pstmt.setInt(7, b.getBuildingNumber());
+            pstmt.setInt(8, b.getApartmentNumber());
             pstmt.executeUpdate();
+            System.out.println("Bill set successfully.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -382,24 +382,32 @@ public class DirectorApp implements DirectorDao{
         }
     }
 
-    public Bill calculateBill(Apartment a, double pricePerKwh, LocalDate date, BillStatus status) {
+    public Bill calculateBill(Apartment a, double pricePerKwh, String date, String status) {
         double area = a.getArea();
         int buildingNumber = a.getBuildingNumber();
-        String sql = "SELECT m.measure AS meter_measure FROM Meters m WHERE m.apartment_number = ? AND m.building_number = ?" +
-                "UNION SELECT mm.measure AS main_meter_measure FROM Main_Meters mm WHERE mm.building_number = ?"
-                + "UNION SELECT SUM(area) FROM Apartments AS total_area WHERE building_number = ?";
+        String sql1 = "SELECT m.measure AS meter_measure FROM Meters m WHERE m.apartment_number = ? AND m.building_number = ?";
+        String sql2 = "SELECT mm.measure AS main_meter_measure FROM Main_Meters mm WHERE mm.building_number = ?";
+        String sql3 = "SELECT SUM(area) AS total_area FROM Apartments WHERE building_number = ?";
         try {
             connect();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, a.getApartmentNumber());
-            pstmt.setInt(2, buildingNumber);
-            pstmt.setInt(3, buildingNumber);
-            ResultSet rs = pstmt.executeQuery();
-            double apartmentUsage = rs.getDouble("meter_measure");
-            double buildingUsage = rs.getDouble("main_meter_measure");
-            double totalArea = rs.getDouble("total_area");
+            PreparedStatement pstmt1 = conn.prepareStatement(sql1);
+            pstmt1.setInt(1, a.getApartmentNumber());
+            pstmt1.setInt(2, buildingNumber);
+            ResultSet rs1 = pstmt1.executeQuery();
+            double apartmentUsage = rs1.getDouble("meter_measure");
+
+            PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+            pstmt2.setInt(1, buildingNumber);
+            ResultSet rs2 = pstmt2.executeQuery();
+            double buildingUsage = rs2.getDouble("main_meter_measure");
+
+            PreparedStatement pstmt3 = conn.prepareStatement(sql3);
+            pstmt3.setInt(1, buildingNumber);
+            ResultSet rs3 = pstmt3.executeQuery();
+            double totalArea = rs3.getDouble("total_area");
             double weight = area / totalArea;
             double toPay = apartmentUsage * pricePerKwh + (weight * buildingUsage * pricePerKwh);
+            System.out.println("Bill calculated successfully.");
 
             return new Bill(a.getTenantId(), apartmentUsage,toPay, pricePerKwh,
                     status, date, buildingNumber, a.getApartmentNumber());
@@ -467,4 +475,60 @@ public class DirectorApp implements DirectorDao{
         }
     }
 
+    @Override
+    public List<Building> getBuildings() {
+        String sql = "SELECT building_number, price_per_kwh FROM Buildings";
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+            List<Building> result = new ArrayList<>();
+            while(rs.next()) {
+                int buildingNumber = rs.getInt("building_number");
+                double pricePerKwh = rs.getDouble("price_per_kwh");
+                result.add(new Building(buildingNumber, pricePerKwh));
+            }
+            return result;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public List<Controller> getControllers() {
+        String sql = "SELECT c.controller_id, c.name, c.surname, ca.login, ca.password, ca.status " +
+                "FROM Controllers c JOIN ControllersAccounts ca ON c.controller_id = ca.account_id";
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+            List<Controller> result = new ArrayList<>();
+            while(rs.next()) {
+                int id = rs.getInt("controller_id");
+                String name = rs.getString("name");
+                String surname = rs.getString("surname");
+                String login = rs.getString("login");
+                String password = rs.getString("password");
+                String status = rs.getString("status");
+                result.add(new Controller(id, name, surname));
+            }
+            return result;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

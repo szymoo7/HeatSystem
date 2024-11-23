@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="250.0" style="-fx-background-color: #171514;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.AdminController">
+   <children>
+      <Label fx:id="heatSystemText" layoutX="25.0" layoutY="15.0" prefHeight="50.0" prefWidth="200.0" text="Heat System" textAlignment="CENTER" textFill="#9e5311">
+         <font>
+            <Font size="36.0" />
+         </font>
+         <effect>
+            <Glow level="1.0" />
+         </effect>
+      </Label>
+      <TextField fx:id="billApartmentNumber" layoutX="52.0" layoutY="116.0" promptText="Apartment nr." />
+      <Button fx:id="setBillButtonWindow" layoutX="110.0" layoutY="361.0" mnemonicParsing="false" onAction="#onSetBillButtonWindow" text="Set" />
+      <DatePicker fx:id="billDate" layoutX="38.0" layoutY="207.0" promptText="Payment due to date" />
+      <TextField fx:id="priceForApartment" layoutX="52.0" layoutY="150.0" promptText="Price per kWh" />
+      <TextField fx:id="billBuildingNumber" layoutX="52.0" layoutY="81.0" promptText="Building nr." />
+   </children>
+</AnchorPane>

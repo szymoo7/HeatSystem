@@ -1,6 +1,8 @@
 package org.example.service;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -51,6 +53,10 @@ public class TenantApp implements TenantDao{
         }
     }
 
+    public TenantApp(int accountId) {
+        this.currentId = accountId;
+    }
+
     @Override
     public void login(String login, String password) {
         if(isLoggedIn()) {
@@ -98,12 +104,63 @@ public class TenantApp implements TenantDao{
 
     @Override
     public List<Bill> getBills() {
-        return List.of();
+        String sql = "SELECT * FROM Bills WHERE tenant_id = ?";
+        List<Bill> result = new ArrayList<>();
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, currentId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                int billId = rs.getInt("id");
+                int tenantId = rs.getInt("tenant_id");
+                double amount = rs.getDouble("amount");
+                double pricePerKwh = rs.getDouble("price_per_kwh");
+                double price = rs.getDouble("price");
+                String status = rs.getString("status");
+                String date = rs.getString("date");
+                int buildingNumber = rs.getInt("building_number");
+                int apartmentNumber = rs.getInt("apartment_number");
+                result.add(new Bill(billId, tenantId, amount, pricePerKwh, price, status, date, buildingNumber, apartmentNumber));
+
+            }
+            result.sort(Comparator.comparing(Bill::getDate));
+            return result;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return  null;
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     @Override
-    public void payBill() {
-
+    public void payBill(int id) {
+        if(!isLoggedIn()) {
+            System.out.println("You are not logged in.");
+            return;
+        }
+        String sql = "UPDATE Bills SET status = 'PAID' WHERE tenant_id = ? AND status = 'UNPAID' AND id = ?";
+        try {
+            connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, currentId);
+            pstmt.setInt(2, id);
+            pstmt.executeUpdate();
+            System.out.println("Bill paid successfully.");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     private void connect() throws SQLException {

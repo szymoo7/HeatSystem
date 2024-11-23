@@ -111,8 +111,10 @@ public class ControllerApp implements ControllerDao{
                 }
             }
             result.sort(Comparator.comparing(TaskInfo::getDueDate));
+            return result;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            return null;
         } finally {
             try {
                 disconnect();
@@ -120,8 +122,6 @@ public class ControllerApp implements ControllerDao{
                 System.out.println(e.getMessage());
             }
         }
-        return result.isEmpty() ? null : result;
-
     }
 
     @Override

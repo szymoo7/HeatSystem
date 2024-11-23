@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import org.example.service.*;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AdminController {
@@ -59,6 +60,35 @@ public class AdminController {
     private Button setBuildingPriceButton;
     @FXML
     private Button setPriceButton;
+    @FXML
+    private Button setBillButton;
+    @FXML
+    private TextField billApartmentNumber;
+    @FXML
+    private DatePicker billDate;
+    @FXML
+    private Button setBillButtonWindow;
+    @FXML
+    private Button logOutButton;
+    @FXML
+    private TextField priceForApartment;
+    @FXML
+    private TextField billBuildingNumber;
+    @FXML
+    private Button delegateTaskButton;
+    @FXML
+    private TextField taskType;
+    @FXML
+    private TextField insertTaskDescription;
+    @FXML
+    private ChoiceBox<Apartment> apartmentChoiceBox;
+    @FXML
+    private ChoiceBox<Controller> controllerChoiceBox;
+    @FXML
+    private DatePicker taskDueDate;
+    @FXML
+    private Button delegateTaskButtonWindow;
+
 
 
     @FXML
@@ -143,7 +173,10 @@ public class AdminController {
     protected void onSetBuildingPriceButton() {
         int buildingNumber = Integer.parseInt(buildingInput2.getText());
         double price = Double.parseDouble(priceBuildingKWH.getText());
-        admin.setPricePerKwh(price, new Building(buildingNumber, price));
+        Building building = admin.getBuildings().stream().
+                filter((b) -> b.buildingNumber() == buildingNumber).
+                findFirst().orElse(null);
+        admin.setPricePerKwh(price, building);
     }
 
     @FXML
@@ -157,6 +190,104 @@ public class AdminController {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    protected void onLogOutButtonClick() throws IOException {
+        admin.logout();
+        switchToLoginScene();
+    }
+
+    private void switchToLoginScene() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loginScene.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Heat System");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    protected void onSetBillButtonClick() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("setBillScene.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Set bill");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    protected void onSetBillButtonWindow() {
+        int apartmentNumber = Integer.parseInt(billApartmentNumber.getText());
+        int buildingNumber = Integer.parseInt(billBuildingNumber.getText());
+        String date = billDate.getValue().toString();
+        double pricePerKWH = Double.parseDouble(priceForApartment.getText());
+        Apartment apartment = admin.getApartments().
+                stream().filter((a) -> a.getApartmentNumber() ==
+                        apartmentNumber && a.getBuildingNumber() == buildingNumber).
+                findFirst().orElse(null);
+        if (apartment != null) {
+            Bill b = admin.calculateBill(apartment,pricePerKWH, date, "UNPAID");
+            admin.setBill(b);
+        }
+    }
+
+    @FXML
+    protected void onDelegateTaskButtonClick() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("delegateTaskScene.fxml"));
+            Parent root = fxmlLoader.load();
+            AdminController controller = fxmlLoader.getController();
+            controller.initializeChoiceBoxes();  // Add this line
+            Stage stage = new Stage();
+            stage.setTitle("Delegate Task");  // Fixed the title
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    protected void onDelegateTaskButtonWindow() {
+        // Remove the setItems calls from here since they're now in initializeChoiceBoxes
+        if (apartmentChoiceBox.getValue() == null) {
+            System.out.println("No apartment selected!");
+            return;
+        }
+        if (controllerChoiceBox.getValue() == null) {
+            System.out.println("No controller selected!");
+            return;
+        }
+        if (taskDueDate.getValue() == null) {
+            System.out.println("No date selected!");
+            return;
+        }
+
+        String taskType = this.taskType.getText();
+        String taskDescription = this.insertTaskDescription.getText();
+        int apartmentNumber = apartmentChoiceBox.getValue().getApartmentNumber();
+        int buildingNumber = apartmentChoiceBox.getValue().getBuildingNumber();
+        Controller controller = controllerChoiceBox.getValue();
+        String dueDate = taskDueDate.getValue().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+
+        admin.delegateTask(taskType, controller, buildingNumber, apartmentNumber, taskDescription, dueDate);
+    }
+
+    private void initializeChoiceBoxes() {
+        if (admin != null) {
+            apartmentChoiceBox.setItems(FXCollections.observableArrayList(admin.getApartments()));
+            controllerChoiceBox.setItems(FXCollections.observableArrayList(admin.getControllers()));
         }
     }
 

@@ -17,8 +17,8 @@
             <Glow level="1.0" />
          </effect>
       </Label>
-      <Button fx:id="setBuildingPriceButton" layoutX="88.0" layoutY="140.0" onAction="#onSetBuildingPriceButton" mnemonicParsing="false" text="Set" />
+      <Button fx:id="setBuildingPriceButton" layoutX="88.0" layoutY="140.0" mnemonicParsing="false" onAction="#onSetBuildingPriceButton" text="Set" />
       <TextField fx:id="buildingInput2" layoutX="30.0" layoutY="69.0" promptText="Building Number" />
-      <TextField fx:id="priceBuildingKWH" layoutX="30.0" layoutY="106.0"  promptText="Price per kWh" />
+      <TextField fx:id="priceBuildingKWH" layoutX="30.0" layoutY="106.0" promptText="Price per kWh" />
    </children>
 </AnchorPane>

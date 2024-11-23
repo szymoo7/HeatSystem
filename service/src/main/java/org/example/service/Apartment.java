@@ -5,7 +5,7 @@ public class Apartment {
     private final int apartmentNumber;
     private final int tenantId;
     private final double area;
-    private String tenant;
+    private final String tenant;
 
     public Apartment(int buildingNumber, int apartmentNumber, int tenantId, double area, String tenant) {
         this.buildingNumber = buildingNumber;
@@ -37,5 +37,10 @@ public class Apartment {
 
     public String getTenant() {
         return tenant;
+    }
+
+    @Override
+    public String toString() {
+        return "Building nr.: " + buildingNumber + ", apartment nr.: " + apartmentNumber;
     }
 }

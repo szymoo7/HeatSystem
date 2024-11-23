@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import org.example.service.ControllerApp;
+import org.example.service.Loggable;
 import org.example.service.TaskInfo;
 
 import java.io.IOException;
@@ -72,7 +73,7 @@ public class ControllerController {
         ControllerController.controller = controller;
     }
 
-    public static ControllerApp getController() {
+    public static Loggable getController() {
         return controller;
     }
 

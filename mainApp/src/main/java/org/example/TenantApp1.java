@@ -7,7 +7,7 @@ import java.util.List;
 
 public class TenantApp1 {
     public static void main(String[] args) {
-        TenantApp user1 = new TenantApp();
+        TenantApp user1 = new TenantApp(1);
         user1.login("tenant1", "Tenant1");
         List<Bill> bills = user1.getBills();
         if(bills == null) {
