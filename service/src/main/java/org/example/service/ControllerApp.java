@@ -2,7 +2,6 @@ package org.example.service;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -30,7 +29,6 @@ public class ControllerApp implements ControllerDao{
         }
         String url = "jdbc:sqlite:HeatSystemDB";
         conn = DriverManager.getConnection(url);
-        System.out.println("Connection established to HeatSystemDB.");
     }
 
     private void disconnect() throws SQLException {
@@ -57,23 +55,23 @@ public class ControllerApp implements ControllerDao{
             String validPassword = rs.getString("password");
 
             if(!validPassword.equals(password)) {
-                System.out.println("Invalid login or password.");
+                logger.warning("Invalid login or password.");
             } else {
                 String update = "UPDATE ControllersAccounts SET status = 'online' WHERE account_id = ?";
                 PreparedStatement pstmt2 = conn.prepareStatement(update);
                 pstmt2.setInt(1, id);
                 pstmt2.executeUpdate();
                 this.currentId = id;
-                System.out.println("Logged in as " + login + " successfully.");
+                logger.info("Logged in as " + login + " successfully.");
             }
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         } finally {
             try {
                 disconnect();
             } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                logger.severe(e.getMessage());
             }
         }
     }
@@ -81,7 +79,7 @@ public class ControllerApp implements ControllerDao{
     @Override
     public List<TaskInfo> getTasks() {
         if(currentId ==  0) {
-            System.out.println("You are not logged in.");
+            logger.warning("You are not logged in.");
             return null;
         }
         List<TaskInfo> result = new ArrayList<>();
@@ -110,16 +108,15 @@ public class ControllerApp implements ControllerDao{
                     result.add(new TaskInfo(executor, task, description, status, dueDate, assignedDate, buildingNumber, apartmentNumber));
                 }
             }
-            result.sort(Comparator.comparing(TaskInfo::getDueDate));
             return result;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return null;
         } finally {
             try {
                 disconnect();
             } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                logger.severe(e.getMessage());
             }
         }
     }
@@ -128,7 +125,7 @@ public class ControllerApp implements ControllerDao{
     public void insertReading(int buildingNumber, int apartmentNumber,
                               double mainMeterReading, double apartmentMeterReading, int controllerId) {
         if(currentId == 0) {
-            System.out.println("You are not logged in.");
+            logger.warning("You are not logged in.");
             return;
         }
         String sql = "SELECT apartment_id FROM Apartments WHERE building_number = ? AND apartment_number = ?";
@@ -179,14 +176,14 @@ public class ControllerApp implements ControllerDao{
             pstmt7.setInt(2, buildingNumber);
             pstmt7.setInt(3, mainMeterId);
             pstmt7.executeUpdate();
-            System.out.println("Reading inserted successfully.");
+            logger.info("Reading inserted successfully.");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         } finally {
             try {
                 disconnect();
             } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                logger.severe(e.getMessage());
             }
         }
 
@@ -210,7 +207,7 @@ public class ControllerApp implements ControllerDao{
             ResultSet rs = pstmt.executeQuery();
             return rs.getString("status").equals("online");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return false;
         }
     }
@@ -224,14 +221,14 @@ public class ControllerApp implements ControllerDao{
             pstmt.setInt(1, this.currentId);
             pstmt.executeUpdate();
             this.currentId = 0;
-            System.out.println("Logged out successfully.");
+            logger.info("Logged out successfully.");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         } finally {
             try {
                 disconnect();
             } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                logger.severe(e.getMessage());
             }
         }
     }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="280.0" prefWidth="250.0" style="-fx-background-color: #171514;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.mainappui.AdminController">
+   <children>
+      <Label fx:id="heatSystemText" layoutX="25.0" layoutY="15.0" prefHeight="50.0" prefWidth="200.0" text="Heat System" textAlignment="CENTER" textFill="#9e5311">
+         <font>
+            <Font size="36.0" />
+         </font>
+         <effect>
+            <Glow level="1.0" />
+         </effect>
+      </Label>
+      <TextField fx:id="registerControllerName" layoutX="50.0" layoutY="80.0" promptText="Name" />
+      <TextField fx:id="registerControllerSurname" layoutX="50.0" layoutY="120.0" promptText="Surname" />
+      <TextField fx:id="registerControllerLogin" layoutX="50.0" layoutY="160.0" promptText="Login" />
+      <TextField fx:id="registerControllerPassword" layoutX="50.0" layoutY="200.0" promptText="Password" />
+      <Button fx:id="confirmRegisterControllerButton" layoutX="95.0" layoutY="240.0" mnemonicParsing="false" onAction="#onConfirmRegisterController" text="Register" />
+   </children>
+</AnchorPane>

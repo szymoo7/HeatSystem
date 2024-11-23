@@ -5,9 +5,6 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.effect.Glow?>
-<?import javafx.scene.effect.Light.Distant?>
-<?import javafx.scene.effect.Lighting?>
-<?import javafx.scene.effect.Shadow?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
@@ -40,34 +37,13 @@
             <TableColumn fx:id="apartmentNr" prefWidth="156.0" text="Apartment Nr." />
          </columns>
       </TableView>
-      <Button fx:id="updateApartments" layoutX="759.0" layoutY="84.0" mnemonicParsing="false" onAction="#onClickUpdateApartments" text="Update tenants">
-         <effect>
-            <Lighting>
-               <bumpInput>
-                  <Shadow />
-               </bumpInput>
-               <light>
-                  <Light.Distant />
-               </light>
-            </Lighting>
-         </effect>
-      </Button>
-      <Button fx:id="updateTasksButton" layoutX="998.0" layoutY="423.0" mnemonicParsing="false" onAction="#onLoadTasksButtonClick" text="Update Tasks">
-         <effect>
-            <Lighting>
-               <bumpInput>
-                  <Shadow />
-               </bumpInput>
-               <light>
-                  <Light.Distant />
-               </light>
-            </Lighting>
-         </effect>
-      </Button>
-      <Button fx:id="setPriceButton" layoutX="888.0" layoutY="155.0" mnemonicParsing="false" onAction="#onSetPriceButtonClick" text="Set price per kWh" />
-      <Button fx:id="delegateTaskButton" layoutX="769.0" layoutY="303.0" mnemonicParsing="false" onAction="#onDelegateTaskButtonClick" text="Delegate task" />
-      <Button fx:id="registerTenantButton" layoutX="762.0" layoutY="155.0" mnemonicParsing="false" onAction="#onRegisterTenantButtonClick" text="Register tenant" />
-      <Button fx:id="setBillButton" layoutX="777.0" layoutY="234.0" mnemonicParsing="false" onAction="#onSetBillButtonClick" text="Set bill" />
+      <Button fx:id="updateApartments" layoutX="759.0" layoutY="84.0" mnemonicParsing="false" onAction="#onClickUpdateApartments" text="Update tenants" />
+      <Button fx:id="updateTasksButton" layoutX="998.0" layoutY="423.0" mnemonicParsing="false" onAction="#onLoadTasksButtonClick" text="Update Tasks" />
+      <Button fx:id="setPriceButton" layoutX="753.0" layoutY="150.0" mnemonicParsing="false" onAction="#onSetPriceButtonClick" text="Set price per kWh" />
+      <Button fx:id="delegateTaskButton" layoutX="998.0" layoutY="461.0" mnemonicParsing="false" onAction="#onDelegateTaskButtonClick" text="Delegate task" />
+      <Button fx:id="registerTenantButton" layoutX="760.0" layoutY="117.0" mnemonicParsing="false" onAction="#onRegisterTenantButtonClick" text="Register tenant" />
+      <Button fx:id="setBillButton" layoutX="782.0" layoutY="184.0" mnemonicParsing="false" onAction="#onSetBillButtonClick" text="Set bill" />
       <Button fx:id="logOutButton" layoutX="1026.0" layoutY="680.0" mnemonicParsing="false" onAction="#onLogOutButtonClick" prefHeight="43.0" prefWidth="98.0" text="Log out" />
+      <Button fx:id="registerControllerButton" layoutX="998.0" layoutY="503.0" mnemonicParsing="false" onAction="#onRegisterControllerButtonClick" text="Register controller" />
    </children>
 </AnchorPane>

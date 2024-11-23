@@ -31,10 +31,6 @@ public class DirectorApp implements DirectorDao{
 
     @Override
     public void login(String login, String password) {
-        if(!doesExist(login)) {
-            System.out.println("User does not exist.");
-            return;
-        }
         String sql1 = "SELECT account_id, password FROM AdminsAccounts WHERE login = ?";
         try {
             connect();
@@ -50,18 +46,18 @@ public class DirectorApp implements DirectorDao{
                 pstmt2.setInt(1, id);
                 pstmt2.executeUpdate();
                 this.currentId = id;
-                System.out.println("Logged in as " + login + " successfully.");
+                logger.info("Logged in as " + login + " successfully.");
             } else {
-                System.out.println("Invalid login or password.");
+                logger.warning("Invalid login or password.");
             }
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         } finally {
             try {
                 disconnect();
             } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                logger.severe(e.getMessage());
             }
         }
     }
@@ -69,11 +65,11 @@ public class DirectorApp implements DirectorDao{
     @Override
     public void registerController(Controller c) {
         if(!isLoggedIn()) {
-            System.out.println("You must be logged in to register a controller.");
+            logger.warning("You must be logged in to register a controller.");
             return;
         }
         if(doesControllerExist(c)) {
-            System.out.println("Controller already exists.");
+            logger.warning("Controller already exists.");
             return;
         }
         try {
@@ -96,16 +92,16 @@ public class DirectorApp implements DirectorDao{
             pstmt3.setInt(3, id);
             pstmt3.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         }
     }
 
     @Override
     public void delegateTask(String task, Controller c, int buildingNumber, int apartmentNumber, String description, String dueDate) {
         if(!isLoggedIn()) {
-            System.out.println("You must be logged in to delegate a task.");
-            return;
-        }
+    logger.warning("You must be logged in to delegate a task.");
+    return;
+}
         try {
             connect();
             String sql = "INSERT INTO ControllersTasks(executor_id, task, task_description," +
@@ -121,9 +117,9 @@ public class DirectorApp implements DirectorDao{
             pstmt.setInt(7, buildingNumber);
             pstmt.setInt(8, apartmentNumber);
             pstmt.executeUpdate();
-
+            logger.info("Task delegated successfully.");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         } finally {
             try {
                 disconnect();
@@ -136,11 +132,11 @@ public class DirectorApp implements DirectorDao{
     @Override
     public void setPricePerKwh(double price, Building b) {
         if(!isLoggedIn()) {
-            System.out.println("You must be logged in to set a price.");
+            logger.warning("You must be logged in to set a price.");
             return;
         }
         if(!doesExist(b)) {
-            System.out.println("Building does not exist in the database.");
+            logger.warning("Building does not exist in the database.");
             return;
         }
         try {
@@ -150,9 +146,9 @@ public class DirectorApp implements DirectorDao{
             pstmt.setDouble(1, price);
             pstmt.setInt(2, b.buildingNumber());
             pstmt.executeUpdate();
-            System.out.println("Price set successfully.");
+            logger.info("Price set successfully.");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         } finally {
             try {
                 disconnect();
@@ -165,7 +161,7 @@ public class DirectorApp implements DirectorDao{
     @Override
     public void setBill(Bill b) {
         if(!isLoggedIn()) {
-            System.out.println("You must be logged in to set a bill.");
+            logger.warning("You must be logged in to set a bill.");
             return;
         }
         try {
@@ -182,9 +178,9 @@ public class DirectorApp implements DirectorDao{
             pstmt.setInt(7, b.getBuildingNumber());
             pstmt.setInt(8, b.getApartmentNumber());
             pstmt.executeUpdate();
-            System.out.println("Bill set successfully.");
+            logger.info("Bill set successfully.");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         } finally {
             try {
                 disconnect();
@@ -197,11 +193,11 @@ public class DirectorApp implements DirectorDao{
     @Override
     public void registerTenant(Tenant t) {
         if(!isLoggedIn()) {
-            System.out.println("You must be logged in to register a tenant.");
+            logger.warning("You must be logged in to register a tenant.");
             return;
         }
         if(doesTenantExist(t)) {
-            System.out.println("Tenant already exists.");
+            logger.warning("Tenant already exists.");
             return;
         }
         try {
@@ -230,16 +226,16 @@ public class DirectorApp implements DirectorDao{
             pstmt4.setInt(3, id);
             pstmt4.setDouble(4, t.area());
             pstmt4.executeUpdate();
-            System.out.println("Tenant registered successfully.");
+            logger.info("Tenant registered successfully.");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         }
     }
 
     @Override
     public List<TaskInfo> getTasks() {
         if(currentId ==  0) {
-            System.out.println("You are not logged in.");
+            logger.warning("You are not logged in.");
             return null;
         }
         List<TaskInfo> result = new ArrayList<>();
@@ -266,7 +262,7 @@ public class DirectorApp implements DirectorDao{
             }
             return result;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return null;
         } finally {
             try {
@@ -303,7 +299,7 @@ public class DirectorApp implements DirectorDao{
             int id = rs.getInt("account_id");
             return id != 0;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return false;
         } finally {
             try {
@@ -325,7 +321,7 @@ public class DirectorApp implements DirectorDao{
             int id = rs.getInt("account_id");
             return id != 0;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return false;
         } finally {
             try {
@@ -346,7 +342,7 @@ public class DirectorApp implements DirectorDao{
             int id = rs.getInt("account_id");
             return id != 0;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return false;
         } finally {
             try {
@@ -371,7 +367,7 @@ public class DirectorApp implements DirectorDao{
             int id = rs.getInt("building_number");
             return id != 0;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return false;
         } finally {
             try {
@@ -407,13 +403,13 @@ public class DirectorApp implements DirectorDao{
             double totalArea = rs3.getDouble("total_area");
             double weight = area / totalArea;
             double toPay = apartmentUsage * pricePerKwh + (weight * buildingUsage * pricePerKwh);
-            System.out.println("Bill calculated successfully.");
+            logger.info("Bill calculated successfully.");
 
             return new Bill(a.getTenantId(), apartmentUsage,toPay, pricePerKwh,
                     status, date, buildingNumber, a.getApartmentNumber());
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return null;
         } finally {
             try {
@@ -443,7 +439,7 @@ public class DirectorApp implements DirectorDao{
             }
             return result;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return null;
         } finally {
             try {
@@ -463,9 +459,9 @@ public class DirectorApp implements DirectorDao{
             pstmt.setInt(1, currentId);
             pstmt.executeUpdate();
             currentId = 0;
-            System.out.println("Logged out successfully.");
+            logger.info("Logged out successfully.");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
         } finally {
             try {
                 disconnect();
@@ -490,7 +486,7 @@ public class DirectorApp implements DirectorDao{
             }
             return result;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return null;
         } finally {
             try {
@@ -521,7 +517,7 @@ public class DirectorApp implements DirectorDao{
             }
             return result;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.severe(e.getMessage());
             return null;
         } finally {
             try {

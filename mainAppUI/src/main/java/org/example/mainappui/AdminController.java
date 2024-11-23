@@ -1,5 +1,6 @@
 package org.example.mainappui;
 
+import CustomExceptions.InvalidNameSurnameException;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,10 +14,12 @@ import org.example.service.*;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class AdminController {
 
     private static DirectorApp admin;
+    private Logger logger = Logger.getLogger(AdminController.class.getName());
 
     @FXML
     private Label heatSystemText;
@@ -88,7 +91,18 @@ public class AdminController {
     private DatePicker taskDueDate;
     @FXML
     private Button delegateTaskButtonWindow;
-
+    @FXML
+    private Button registerControllerButton;
+    @FXML
+    private TextField registerControllerName;
+    @FXML
+    private TextField registerControllerSurname;
+    @FXML
+    private TextField registerControllerLogin;
+    @FXML
+    private TextField registerControllerPassword;
+    @FXML
+    private Button confirmRegisterControllerButton;
 
 
     @FXML
@@ -157,9 +171,12 @@ public class AdminController {
     }
 
     @FXML
-    protected void onConfirmRegisterTenant() {
+    protected void onConfirmRegisterTenant() throws InvalidNameSurnameException {
         String name = nameInput1.getText();
         String surname = surnameInput.getText();
+        if(!isNameSurnameValid(name, surname)) {
+            throw new InvalidNameSurnameException("Invalid name or surname");
+        }
         String login = loginInput.getText();
         String password = passwordInput.getText();
         int buildingNumber = Integer.parseInt(buildingInput1.getText());
@@ -176,6 +193,10 @@ public class AdminController {
         Building building = admin.getBuildings().stream().
                 filter((b) -> b.buildingNumber() == buildingNumber).
                 findFirst().orElse(null);
+        if(building == null) {
+            logger.info("Building not found");
+            return;
+        }
         admin.setPricePerKwh(price, building);
     }
 
@@ -199,17 +220,13 @@ public class AdminController {
         switchToLoginScene();
     }
 
-    private void switchToLoginScene() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loginScene.fxml"));
-            Parent root = fxmlLoader.load();
-            Stage stage = new Stage();
-            stage.setTitle("Heat System");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @FXML
+    protected void switchToLoginScene() throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("loginScene.fxml"));
+        Stage stage = (Stage) logOutButton.getScene().getWindow();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
     }
 
     @FXML
@@ -237,7 +254,7 @@ public class AdminController {
                         apartmentNumber && a.getBuildingNumber() == buildingNumber).
                 findFirst().orElse(null);
         if (apartment != null) {
-            Bill b = admin.calculateBill(apartment,pricePerKWH, date, "UNPAID");
+            Bill b = admin.calculateBill(apartment, pricePerKWH, date, "UNPAID");
             admin.setBill(b);
         }
     }
@@ -248,9 +265,9 @@ public class AdminController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("delegateTaskScene.fxml"));
             Parent root = fxmlLoader.load();
             AdminController controller = fxmlLoader.getController();
-            controller.initializeChoiceBoxes();  // Add this line
+            controller.initializeChoiceBoxes();
             Stage stage = new Stage();
-            stage.setTitle("Delegate Task");  // Fixed the title
+            stage.setTitle("Delegate Task");
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
@@ -260,7 +277,6 @@ public class AdminController {
 
     @FXML
     protected void onDelegateTaskButtonWindow() {
-        // Remove the setItems calls from here since they're now in initializeChoiceBoxes
         if (apartmentChoiceBox.getValue() == null) {
             System.out.println("No apartment selected!");
             return;
@@ -291,5 +307,36 @@ public class AdminController {
         }
     }
 
+    @FXML
+    protected void onRegisterControllerButtonClick() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().
+                    getResource("registerControllerScene.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Register Controller");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    @FXML
+    protected void onConfirmRegisterController() throws InvalidNameSurnameException {
+        String name = registerControllerName.getText();
+        String surname = registerControllerSurname.getText();
+        if(!isNameSurnameValid(name, surname)) {
+            throw new InvalidNameSurnameException("Invalid name or surname");
+        }
+        String login = registerControllerLogin.getText();
+        String password = registerControllerPassword.getText();
+        Controller c = new Controller(name, surname, login, password);
+        admin.registerController(c);
+    }
+
+    private boolean isNameSurnameValid(String name, String surname)
+            throws InvalidNameSurnameException {
+        return name.matches("[A-Za-z]+") && surname.matches("[A-Za-z]+");
+    }
 }

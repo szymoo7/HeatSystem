@@ -96,9 +96,9 @@ public class ControllerController {
     protected void onLogOutButtonClick() throws IOException {
         controller.logout();
         switchToLoginScene();
-
     }
 
+    @FXML
     protected void switchToLoginScene() throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("loginScene.fxml"));
         Stage stage = (Stage) logOutButton.getScene().getWindow();

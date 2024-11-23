@@ -2,12 +2,17 @@ package org.example.mainappui;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import org.example.service.Bill;
 import org.example.service.Loggable;
 import org.example.service.TenantApp;
 
+import java.io.IOException;
 import java.util.List;
 
 public class TenantController {
@@ -22,6 +27,8 @@ public class TenantController {
     private TextField insertBillId;
     @FXML
     private Button payBillButton;
+    @FXML
+    private Button logOutButton;
     @FXML
     private TableView<Bill> bills;
     @FXML
@@ -73,7 +80,18 @@ public class TenantController {
         tenant.payBill(billId);
     }
 
+    @FXML
+    protected void onClickLogOut() throws IOException {
+        switchToLoginScene();
+        tenant.logout();
+    }
 
-
-
+    @FXML
+    protected void switchToLoginScene() throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("loginScene.fxml"));
+        Stage stage = (Stage) logOutButton.getScene().getWindow();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
 }
